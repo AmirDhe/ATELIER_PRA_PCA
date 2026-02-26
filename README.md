@@ -231,27 +231,29 @@ Faites preuve de pédagogie et soyez clair dans vos explications et procedures d
 **Exercice 1 :**  
 Quels sont les composants dont la perte entraîne une perte de données ?  
   
-*..Répondez à cet exercice ici..*
+   Tout ce qui stocke le fichier SQLite : le PVC `pra-data` et son volume sous-jacent (ou la sauvegarde si elle disparaît).
 
 **Exercice 2 :**  
 Expliquez nous pourquoi nous n'avons pas perdu les données lors de la supression du PVC pra-data  
   
-*..Répondez à cet exercice ici..*
+   Parce qu’on avait un second volume `pra-backup` contenant des copies régulières. On a recréé le PVC et réinjecté le dernier backup.
 
 **Exercice 3 :**  
 Quels sont les RTO et RPO de cette solution ?  
   
-*..Répondez à cet exercice ici..*
+   - **RPO ≈ 1 minute** (c’est l’intervalle entre deux sauvegardes).  
+   - **RTO ≈ quelques minutes** (temps humain pour recréer le volume et restaurer).
 
 **Exercice 4 :**  
 Pourquoi cette solution (cet atelier) ne peux pas être utilisé dans un vrai environnement de production ? Que manque-t-il ?   
-  
-*..Répondez à cet exercice ici..*
+
+   C’est juste un demo : base SQLite, cluster mono‑site, pas de sauvegarde externe ni d’automatisation, pas de sécurité, etc.
+
   
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
-  
-*..Répondez à cet exercice ici..*
+
+   Remplacer par une vraie base répliquée (Postgres HA), stockage distribué multi‑zone, backups externes, cluster redondant, automation et surveillance.
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
