@@ -270,9 +270,40 @@ Difficulté : Moyenne (~2 heures)
 
 ---------------------------------------------------
 ### **Atelier 2 : Choisir notre point de restauration**  
-Aujourd’hui nous restaurobs “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
+Par défaut, le système est configuré pour restaurer le "dernier backup". Pour choisir un point de restauration spécifique, je suis la procédure suivante :
 
-*..Décrir ici votre procédure de restauration (votre runbook)..*  
+1. Identification du point de sauvegarde
+
+Je liste les fichiers disponibles dans le volume de stockage pour identifier le timestamp souhaité :
+
+Bash
+kubectl -n pra exec deploy/flask -- ls -lh /backup
+[!IMPORTANT]
+Notez bien le nom exact du fichier, par exemple : app-1772094901.db
+
+2. Lancement du Job de restauration ciblé
+
+Comme le Job standard pointe vers latest.db, je génère un Job éphémère en modifiant la variable d'environnement RESTORE_FILE à la volée :
+
+
+### Je définis le fichier cible
+export TARGET_BACKUP="app-1772094901.db"
+
+### Je duplique le job type en changeant son nom et sa cible
+kubectl -n pra get job sqlite-restore -o yaml | \
+sed "s/name: sqlite-restore/name: restore-manual-$(date +%s)/" | \
+sed "s/value: .*\.db/value: $TARGET_BACKUP/" | \
+kubectl apply -f -
+3. Bascule et vérification
+
+Une fois que le Job affiche le statut Completed, je redémarre l'application pour forcer la reconnexion à la base de données restaurée :
+
+
+### Redémarrage sécurisé du déploiement
+kubectl -n pra rollout restart deployment flask
+
+### Validation du succès via l'API
+curl http://localhost:8080/status
   
 ---------------------------------------------------
 Evaluation
